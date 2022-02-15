@@ -215,7 +215,8 @@ int main(void) {
 	MX_I2C1_Init();
 	MX_I2C2_Init();
 	/* USER CODE BEGIN 2 */
-//  HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim2);
+	Setup_Motor_PID();
 
 	/* USER CODE END 2 */
 
