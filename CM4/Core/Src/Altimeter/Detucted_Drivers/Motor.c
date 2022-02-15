@@ -30,7 +30,7 @@ void Motors_Init(TIM_HandleTypeDef htim3){
 //	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); // Start PWM4
 }
 
-
+//#TODO: modificare la gestione di motor_armed
 /*************************************************************
  *Function name: Motor_Arm_All
  *Description:   Arm all motors
@@ -108,7 +108,7 @@ void Motor_Write_PWM(int channel, float value){
 	if(value<=0 || value>=100)	return;
 
 	// calculate the value of CCRx register (compare register), ARR is the MaxCOUNT of the timer
-	float new_CCRx_value = TIM3->ARR * (1-value/100);
+	float new_CCRx_value = TIM3->ARR * (value/100);
 	// assign the value to the correct CCRx
 	switch(channel){
 	case 1:
