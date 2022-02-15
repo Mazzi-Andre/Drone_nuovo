@@ -551,7 +551,7 @@ void Setup_Motor_PID() {
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	/* Send arm signal to motors */
 	Motor_Arm_All();
-	HAL_Delay(2000)
+	HAL_Delay(2000);
 
 
 	// Initialize PID structures used for PID properties
