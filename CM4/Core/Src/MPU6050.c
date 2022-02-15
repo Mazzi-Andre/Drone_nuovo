@@ -18,7 +18,7 @@ int MPU6050_Init() {
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 3;
 	HAL_Delay(DEFAULT_TIMEOUT);
-	data = 0x00;
+	data = 0x00; // 0b00000000 -->viene settato a 0, quindi 2g
 	if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &data,
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 5;
@@ -61,7 +61,7 @@ void MPU6050_Init_Gir(void) {
 
 //read Roll, Pitch and yaw acceleration
 //TOOD: si punta sui delay
-void MPU6050_Read_Accel(IMU_raw *Imu_raw) {
+void MPU6050_Read_Accel(IMU_raw *Imu_raw, IMU_temp *Imu_temp) {
 	uint8_t recData[6];
 	memset(recData, 0, sizeof(recData));
 	//8 bytes are required, first and second bytes of recData will be populated with x-axis data, third and fourth y-axis data and fith and sith with z-axis data
@@ -74,9 +74,13 @@ void MPU6050_Read_Accel(IMU_raw *Imu_raw) {
 	Imu_raw->accRoll = (int16_t) (recData[0] << 8 | recData[1]);
 	Imu_raw->accPitch = (int16_t) (recData[2] << 8 | recData[3]);
 	Imu_raw->accYaw = (int16_t) (recData[4] << 8 | recData[5]);
+
+	Imu_temp->accRoll = Imu_raw->accRoll / 16384;
+	Imu_temp->accPitch = Imu_raw->accPitch / 16384;
+	Imu_temp->accYaw = Imu_raw->accYaw / 16384;
 }
 
-void MPU6050_Read_Gir(IMU_raw *Imu_raw) {
+void MPU6050_Read_Gir(IMU_raw *Imu_raw, IMU_temp *Imu_temp) {
 	uint8_t recData[6];
 	memset(recData, 0, sizeof(recData));
 	HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, GYRO_XOUT_H_REG,
@@ -87,9 +91,10 @@ void MPU6050_Read_Gir(IMU_raw *Imu_raw) {
 	Imu_raw->gyrPitch = (int16_t) (recData[2] << 8 | recData[3]); // angolo y
 	Imu_raw->gyrYaw = (int16_t) (recData[4] << 8 | recData[5]);
 
-	Gx = (int16_t) (Imu_raw->gyrRoll / 16384);
-	Gy = (int16_t) (Imu_raw->gyrPitch / 16384);
-	Gz = (int16_t) (Imu_raw->gyrYaw / 16384);
+	Imu_temp->gyrRoll = Imu_raw->gyrRoll / 131;
+	Imu_temp->gyrPitch = Imu_raw->gyrPitch / 131;
+	Imu_temp->gyrYaw = Imu_raw->gyrYaw / 131;
+
 }
 //TODO: ripristinare le funzioni
 //initialize magnetometer - checking id, configuring registers, setting MAG_data parameters
@@ -282,3 +287,12 @@ int magcal(MAG_data *mag_data) {
 	return 0;
 }  // FINE - magcal(..)
 
+
+
+// Funzione utilizzate per la sensibilità del giroscopio e dell'accellerometro
+
+int mpu_get_gyro_fsr(IMU_sens *Imu_sens){
+	HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, MemAddSize, pData, Size, Timeout)
+
+
+}

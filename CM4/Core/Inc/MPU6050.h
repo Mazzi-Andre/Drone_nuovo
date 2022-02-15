@@ -100,9 +100,9 @@ int MPU6050_Init(void);
 void MPU6050_Init_Gir(void);
 
 //funzione di lettura accellerometro
-void MPU6050_Read_Accel(IMU_raw* Imu_raw);
+void MPU6050_Read_Accel(IMU_raw* Imu_raw, IMU_temp *Imu_temp);
 //funzione di lettura giroscopio
-void MPU6050_Read_Gir(IMU_raw* Imu_raw);
+void MPU6050_Read_Gir(IMU_raw* Imu_raw, IMU_temp *Imu_temp);
 //inizializzazione magnetometro e settagio valori di default
 int MPU6050_Mag_Init(MAG_data* mag_data);
 //lettura registri dati magnetometro
