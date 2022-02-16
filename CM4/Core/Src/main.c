@@ -148,6 +148,8 @@ const float dt = 0.05;
 
 /*Structure used by IMU for initialization*/
 AHRS_out ahrs;
+
+int check_setup = 0; //variabile che utilizziamo per l'avvio delle funzioni successive al setup.
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -215,10 +217,14 @@ int main(void) {
 	MX_I2C2_Init();
 	/* USER CODE BEGIN 2 */
 	MPU6050_Init();
-	MPU6050_Init_Gir();
+//	MPU6050_Init_Gir();
 
 	HAL_TIM_Base_Start_IT(&htim2);
 	Setup_Motor_PID();
+	ahrs.mag.x=0.0f;
+	ahrs.mag.y=0.0f;
+	ahrs.mag.z=0.0f;
+	check_setup = 1;
 
 	/* USER CODE END 2 */
 
@@ -556,7 +562,6 @@ void Setup_Motor_PID() {
 	Motor_Arm_All();
 	HAL_Delay(2000);
 
-
 	// Initialize PID structures used for PID properties
 	// with their respective coefficents for proportional,
 	// derivative and integrative
@@ -572,16 +577,18 @@ void Setup_Motor_PID() {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim == &htim2) {
-		time_5ms_increase += 5;
-		Callback_5ms();
-		if (time_5ms_increase % 50 == 0)
-			Callback_50ms();
-		if (time_5ms_increase % 100 == 0) {
-			Callback_100ms();
-			time_5ms_increase = 0;
-		}
+	if (check_setup) {
+		if (htim == &htim2) {
+			time_5ms_increase += 5;
+			Callback_5ms();
+			if (time_5ms_increase % 50 == 0)
+				Callback_50ms();
+			if (time_5ms_increase % 100 == 0) {
+				Callback_100ms();
+				time_5ms_increase = 0;
+			}
 
+		}
 	}
 }
 

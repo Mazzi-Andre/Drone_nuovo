@@ -57,7 +57,7 @@ void Motor_Arm(int channel){
 	if(channel < 1 || channel > 4)	return;
 
 	//motors should be enabled
-	if(!motors_armed[channel-1]) return;
+	if(motors_armed[channel-1]=false) return;
 
 	// Call Motor_Write_up() function passing the constant related to armament of motors
 	Motor_Write_up(channel, MOTOR_ARM_UP);
