@@ -27,6 +27,7 @@
 #include "AHRS.h"
 #include "Altimeter\Detucted_Drivers\Motor.h"
 #include "Altimeter\Detucted_Drivers\map.h"
+#include <Screen.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -216,6 +217,7 @@ int main(void) {
 	MX_I2C1_Init();
 	MX_I2C2_Init();
 	/* USER CODE BEGIN 2 */
+	screen_setup();
 	MPU6050_Init();
 //	MPU6050_Init_Gir();
 
