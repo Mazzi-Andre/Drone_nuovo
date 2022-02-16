@@ -18,12 +18,12 @@ int MPU6050_Init() {
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 3;
 	HAL_Delay(DEFAULT_TIMEOUT);
-	data = 0x00; // 0b00000000 -->viene settato a 0, quindi 2g
+	data = 0b00001100; // 0b00000000 -->viene settato a 0, quindi 2g  0x00
 	if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &data,
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 5;
 	HAL_Delay(DEFAULT_TIMEOUT);
-	data = 0x00;
+	data = 0b00001100;
 	if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &data,
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 6;
@@ -287,12 +287,3 @@ int magcal(MAG_data *mag_data) {
 	return 0;
 }  // FINE - magcal(..)
 
-
-
-// Funzione utilizzate per la sensibilità del giroscopio e dell'accellerometro
-
-int mpu_get_gyro_fsr(IMU_sens *Imu_sens){
-	HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, MemAddSize, pData, Size, Timeout)
-
-
-}

@@ -11,7 +11,7 @@
 #include <sys/_stdint.h>
 
 
-bool motors_armed;
+bool motors_armed[4]={0,0,0,0};
 TIM_HandleTypeDef* htim;
 
 
@@ -30,7 +30,7 @@ void Motors_Init(TIM_HandleTypeDef htim3){
 //	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); // Start PWM4
 }
 
-//#TODO: modificare la gestione di motor_armed
+//#TODO: testare la gestione di motor_armed
 /*************************************************************
  *Function name: Motor_Arm_All
  *Description:   Arm all motors
@@ -38,11 +38,10 @@ void Motors_Init(TIM_HandleTypeDef htim3){
  *Return value:  none
  ************************************************************/
 void Motor_Arm_All(){
-	//enable motors
-	motors_armed = true;
-
 	// Call the Motor_Arm() function for every motor
 	for(int i=1; i<=4; i++){
+
+		if(!motors_armed[i-1])
 		Motor_Arm(i);
 	}
 }
@@ -58,10 +57,11 @@ void Motor_Arm(int channel){
 	if(channel < 1 || channel > 4)	return;
 
 	//motors should be enabled
-	if(!motors_armed) return;
+	if(!motors_armed[channel-1]) return;
 
 	// Call Motor_Write_up() function passing the constant related to armament of motors
 	Motor_Write_up(channel, MOTOR_ARM_UP);
+	motors_armed[channel-1]= 1;
 }
 
 /*************************************************************
@@ -72,11 +72,14 @@ void Motor_Arm(int channel){
  */
 void Motors_Off () {
 	Motor_Write_up(MOTOR_1, 0);
+	motors_armed[MOTOR_1 - 1] = 0;
 	Motor_Write_up(MOTOR_2, 0);
+	motors_armed[MOTOR_2 - 1] = 0;
 	Motor_Write_up(MOTOR_3, 0);
+	motors_armed[MOTOR_3 - 1] = 0;
 	Motor_Write_up(MOTOR_4, 0);
+	motors_armed[MOTOR_4 - 1] = 0;
 
-	motors_armed = false;
 }
 
 
@@ -125,7 +128,4 @@ void Motor_Write_PWM(int channel, float value){
 			break;
 
 	}
-
-
-
 }

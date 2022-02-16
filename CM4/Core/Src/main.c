@@ -160,7 +160,6 @@ static void MX_I2C2_Init(void);
 void Callback_5ms();
 void Callback_50ms();
 void Callback_100ms();
-void Fallback();
 void Setup_Motor_PID();
 float* SpeedCompute(float virtualInputs[], float b, float l, float d);
 /* USER CODE END PFP */
@@ -215,6 +214,9 @@ int main(void) {
 	MX_I2C1_Init();
 	MX_I2C2_Init();
 	/* USER CODE BEGIN 2 */
+	MPU6050_Init();
+	MPU6050_Init_Gir();
+
 	HAL_TIM_Base_Start_IT(&htim2);
 	Setup_Motor_PID();
 
@@ -584,8 +586,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void Callback_5ms(AHRS_out *ahrs) {
-	MPU6050_Read_Accel(&ahrs->raw);
-	MPU6050_Read_Gir(&ahrs->raw);
+	MPU6050_Read_Accel(&ahrs->raw, &ahrs->temp);
+	MPU6050_Read_Gir(&ahrs->raw, &ahrs->temp);
 	getYPR(&ahrs->mag, &ahrs->temp, &ahrs->ahrs_data);
 
 	//Read_Acc(ahrs)---> N:B. da radianti per secondo a gradi per secondo
@@ -594,7 +596,6 @@ void Callback_5ms(AHRS_out *ahrs) {
 
 void Callback_50ms() {
 
-	//#TODO: modificare gli assegnamenti
 	//Dati IMU che definiscono lo stato corrente del drone nei tre assi
 
 	float Current_pitch = ahrs.ahrs_data.PitchDeg;

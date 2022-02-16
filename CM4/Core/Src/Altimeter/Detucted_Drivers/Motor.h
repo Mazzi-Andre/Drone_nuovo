@@ -38,7 +38,7 @@
 #define MOTOR_MAX_SPEED_3 1220.6926 //sqrt(1/(4*B_3)+1/(2*L*B_3)+1/(4*D))
 #define MOTOR_MAX_SPEED_4 1220.2435 //sqrt(1/(4*B_4)+1/(2*L*B_3)+1/(4*D))
 
-extern bool motors_armed;
+extern bool motors_armed[4];
 
 void Motors_Init(TIM_HandleTypeDef htim3);
 void Motor_Arm_All();
