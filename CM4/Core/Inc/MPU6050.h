@@ -7,17 +7,12 @@
 
 #ifndef INC_MPU6050_H_
 #define INC_MPU6050_H_
-
-
-
-#endif /* INC_MPU6050_H_ */
-
+#include <stdbool.h>
 #include <stdio.h>
 #include <stm32h7xx_hal.h>
 #include <stm32h7xx_hal_i2c.h>
 #include <string.h>
 #include <sys/_stdint.h>
-#include <stdbool.h>
 
 
 #define MPU6050_ADDR 0xD0 // addres of the peripherical
@@ -119,3 +114,5 @@ int magcal(MAG_data* mag_data);
 
 
 
+
+#endif /* INC_MPU6050_H_ */

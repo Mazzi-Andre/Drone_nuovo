@@ -6,6 +6,7 @@
  */
 
 #include "MPU6050.h"
+bool bypass = 1;
 int MPU6050_Init() {
 	uint8_t check_id, data;
 	if (HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check_id,
@@ -211,11 +212,11 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 
  return 0x0;
  }
-
+*/
  // set bypass to 1 in order to communicate with magnetometer
  int mpu_set_bypass() {
  uint8_t data;
- data = 0x00;
+ data=0x08;
  if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, 0x6A, 1, &data, sizeof(data),
  2 * DEFAULT_TIMEOUT)) //set i2c Master enable bit
  return 1;
@@ -230,7 +231,7 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
  bypass = 1;
  return 0;
  }
- */
+
 int magcal(MAG_data *mag_data) {
 	mag_data->scale[0] = 1.0;
 	mag_data->scale[1] = 1.0;
