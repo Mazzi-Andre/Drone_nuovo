@@ -30,6 +30,20 @@ void print_acc(float ax,float ay,float az){
 	sprintf(buffer3, "az: %.3f", az);
 
 
-	SSD1306_Fill(0);
+	SSD1306_GotoXY(10, 10);
+	SSD1306_Puts((char*)buffer1, &Font_7x10, 1);
 	SSD1306_UpdateScreen();
+
+
+
+	SSD1306_GotoXY(10, 20);
+	SSD1306_Puts((char*)buffer2, &Font_7x10, 1);
+	SSD1306_UpdateScreen();
+
+
+
+	SSD1306_GotoXY(10, 30);
+	SSD1306_Puts((char*)buffer3, &Font_7x10, 1);
+	SSD1306_UpdateScreen();
+
 }

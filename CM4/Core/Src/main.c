@@ -219,7 +219,7 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	screen_setup();
 	MPU6050_Init();
-//	MPU6050_Init_Gir();
+	MPU6050_Init_Gir();
 
 	HAL_TIM_Base_Start_IT(&htim2);
 	Setup_Motor_PID();
@@ -236,6 +236,8 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+
+
 	}
 	/* USER CODE END 3 */
 }
@@ -582,7 +584,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (check_setup) {
 		if (htim == &htim2) {
 			time_5ms_increase += 5;
-			Callback_5ms();
+			Callback_5ms(&ahrs);
 			if (time_5ms_increase % 50 == 0)
 				Callback_50ms();
 			if (time_5ms_increase % 100 == 0) {
@@ -644,6 +646,7 @@ void Callback_50ms() {
 }
 
 void Callback_100ms() {
+	print_acc(ahrs.temp.accRoll, ahrs.temp.accPitch, ahrs.temp.accYaw);
 
 	/*
 	 */

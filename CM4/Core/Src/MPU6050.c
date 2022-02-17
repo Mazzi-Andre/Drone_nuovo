@@ -35,29 +35,29 @@ int MPU6050_Init() {
 	HAL_Delay(DEFAULT_TIMEOUT);
 	return 0;
 }
-//
-//void MPU6050_Init_Gir(void) {
-//	uint8_t check, data;
-//	HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check, 1, 100);
-//	if (check == 104) {
-//		data = 0x07;
-//		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, SMPLRT_DIV_REG, 1, &data, 1,
-//				50);
-//		HAL_Delay(50);
-//		data = 0x00;
-//		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &data, 1,
-//				50);
-//		HAL_Delay(50);
-//		data = 0x00;
-//		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &data, 1,
-//				50);
-//		HAL_Delay(50);
-//		data = 0;
-//		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, PWR_MGMT_1_REG, 1, &data, 1,
-//				50);
-//		HAL_Delay(50);
-//	}
-//}
+
+void MPU6050_Init_Gir(void) {
+	uint8_t check, data;
+	HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check, 1, 100);
+	if (check == 104) {
+		data = 0x07;
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, SMPLRT_DIV_REG, 1, &data, 1,
+				50);
+		HAL_Delay(50);
+		data = 0x00;
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, ACCEL_CONFIG_REG, 1, &data, 1,
+				50);
+		HAL_Delay(50);
+		data = 0x00;
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &data, 1,
+				50);
+		HAL_Delay(50);
+		data = 0;
+		HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, PWR_MGMT_1_REG, 1, &data, 1,
+				50);
+		HAL_Delay(50);
+	}
+}
 
 //read Roll, Pitch and yaw acceleration
 //TOOD: si punta sui delay
