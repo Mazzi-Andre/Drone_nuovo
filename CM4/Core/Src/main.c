@@ -219,12 +219,12 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	screen_setup();
 	MPU6050_Init();
+	MPU6050_Init_Gir();
 	HAL_TIM_Base_Start_IT(&htim2);
 	Setup_Motor_PID();
 	ahrs.mag.x=0.0f;
 	ahrs.mag.y=0.0f;
 	ahrs.mag.z=0.0f;
-	mpu_set_bypass();
 	check_setup = 1;
 
 
@@ -646,8 +646,9 @@ void Callback_50ms() {
 }
 
 void Callback_100ms() {
-	print_acc(ahrs.temp.accRoll, ahrs.temp.accPitch, ahrs.temp.accYaw);
-
+	//print_acc(ahrs.temp.accRoll, ahrs.temp.accPitch, ahrs.temp.accYaw);
+	//print_acc(ahrs.ahrs_data.RollDeg, ahrs.ahrs_data.PitchDeg, ahrs.ahrs_data.YawDeg);
+	print_acc(ahrs.ahrs_data.omegaRollDeg, ahrs.ahrs_data.omegaPitchDeg, ahrs.ahrs_data.omegaYawDeg);
 	/*
 	 */
 

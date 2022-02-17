@@ -84,10 +84,10 @@ void getAHRS(float* pitch, float* yaw, float* roll){
   *yaw   = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);
   *pitch = -asin(2.0f * (q1 * q3 - q0 * q2));
   *roll  = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
-  /*
+
   *yaw   *= 180.0f / PI;
   *yaw   -= 3.316666666; // Declination at Ancona, Italy is 3 degrees 19 minutes
-  *yaw   *= PI / 180.0f;*/
+  *yaw   *= PI / 180.0f;
 }
 
 void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
