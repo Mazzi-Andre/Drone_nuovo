@@ -219,14 +219,14 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	screen_setup();
 	MPU6050_Init();
-	MPU6050_Init_Gir();
-
 	HAL_TIM_Base_Start_IT(&htim2);
 	Setup_Motor_PID();
 	ahrs.mag.x=0.0f;
 	ahrs.mag.y=0.0f;
 	ahrs.mag.z=0.0f;
+	mpu_set_bypass();
 	check_setup = 1;
+
 
 	/* USER CODE END 2 */
 
