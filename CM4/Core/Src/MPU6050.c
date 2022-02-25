@@ -6,7 +6,7 @@
  */
 
 #include "MPU6050.h"
-bool bypass = 1;
+bool bypass = 0;
 int MPU6050_Init() {
 	uint8_t check_id, data;
 	if (HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check_id,
@@ -24,7 +24,7 @@ int MPU6050_Init() {
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 5;
 	HAL_Delay(DEFAULT_TIMEOUT);
-	data = 0b00000000;
+	data = 0b00011000;
 	if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, GYRO_CONFIG_REG, 1, &data,
 			sizeof(data), DEFAULT_TIMEOUT))
 		return 6;
@@ -92,9 +92,9 @@ void MPU6050_Read_Gir(IMU_raw *Imu_raw, IMU_temp *Imu_temp) {
 	Imu_raw->gyrPitch = (int16_t) (recData[2] << 8 | recData[3]); // angolo y
 	Imu_raw->gyrYaw = (int16_t) (recData[4] << 8 | recData[5]);
 
-	Imu_temp->gyrRoll = Imu_raw->gyrRoll / 131;
-	Imu_temp->gyrPitch = Imu_raw->gyrPitch / 131;
-	Imu_temp->gyrYaw = Imu_raw->gyrYaw / 131;
+	Imu_temp->gyrRoll = Imu_raw->gyrRoll / 16.4;
+	Imu_temp->gyrPitch = Imu_raw->gyrPitch / 16.4;
+	Imu_temp->gyrYaw = Imu_raw->gyrYaw / 16.4;
 
 }
 //TODO: ripristinare le funzioni
@@ -103,7 +103,7 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 	uint8_t check_id, data;
 	check_id=0x00;
 	data=0x00;
-	/*
+
 	 //setting bypass if is off
 	 if (!bypass)
 	 if (mpu_set_bypass())
@@ -114,7 +114,7 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 	 sizeof(check_id), 2 * DEFAULT_TIMEOUT))
 	 return 2;
 	 //HMC5893 configuration - checking id
-	 if (check_id == HMC5983_WHO_I_AM_REG)
+	 if (check_id != HMC5983_ID_A_VAL)
 	 return 3;
 	 //setting contiuos mode
 	 data = 0;
@@ -125,17 +125,18 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 	 if (HAL_I2C_Mem_Read(&hi2c2, HMC5983_ADDRESS, HMC5983_CONF_A, 1, &data,
 	 sizeof(data), 2 * DEFAULT_TIMEOUT))
 	 return 0x4;
-	 data |= 0x1C;
+	 //setting output data rate to 75hz
+	 data |= 0x1C; //00011000
 	 //setting 220hz
 	 if (HAL_I2C_Mem_Write(&hi2c2, HMC5983_ADDRESS, HMC5983_CONF_A, 1, &data,
 	 sizeof(data), 2 * DEFAULT_TIMEOUT))
 	 return 0x5;
 	 //reading CONF B register
 	 if (HAL_I2C_Mem_Read(&hi2c2, HMC5983_ADDRESS, HMC5983_CONF_B, 1, &data,
-	 sizeof(data), 2 * DEFAULT_TIMEOUT))
+	 sizeof(data), 2 * DEFAULT_TIMEOUT)) //DOVREBBE ESSERE 0X20 (0.92)
 	 return 0x6;
 	 data = data >> 5;
-	 */
+
 	//setting default sense
 	switch (data) {
 	case 0:
@@ -177,14 +178,14 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 	return 0x0;
 }
 //TODO: sistemare bypass, togliere il commento e provare read e read_raw
-/*
+
  //read register in which measurements are stored and write in mag_data->raw
  int mag_read_raw(MAG_data* mag_data) {
  uint8_t data[6];
  memset(data, 0, sizeof(data));
 
- if (HAL_I2C_Mem_Read(&hi2c2, HMC5983_ADDRESS, HMC5983_OUT_X_MSB, 6, data,
- sizeof(data), 2 * DEFAULT_TIMEOUT))
+ if (HAL_I2C_Mem_Read(&hi2c2, HMC5983_ADDRESS, HMC5983_OUT_X_MSB, 1, data,
+		 sizeof(data), 2 * DEFAULT_TIMEOUT))
  return 0x1;
  mag_data->raw[0] = (data[0] << 8) | data[1];
 
@@ -212,18 +213,20 @@ int MPU6050_Mag_Init(MAG_data *mag_data) {
 
  return 0x0;
  }
-*/
+
  // set bypass to 1 in order to communicate with magnetometer
  int mpu_set_bypass() {
  uint8_t data;
- data=0x10;
+ data = 0b00000010;
+  if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, 0x37, 1, &data, sizeof(data),
+  2 * DEFAULT_TIMEOUT)) //set I2C Bypass enable bit
+  return 1;
+
+ data=0b00000000;
  if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, 0x6A, 1, &data, sizeof(data),
  2 * DEFAULT_TIMEOUT)) //set i2c Master enable bit
- return 1;
- data = 0x02;
- if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, 0x37, 1, &data, sizeof(data),
- 2 * DEFAULT_TIMEOUT)) //set I2C Bypass enable bit
  return 2;
+
  data = 0x00;
  if (HAL_I2C_Mem_Write(&hi2c2, MPU6050_ADDR, 0x6B, 1, &data, sizeof(data),
  2 * DEFAULT_TIMEOUT)) //Turn off sleep mode by reseting SLEEP bit

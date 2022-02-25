@@ -20,11 +20,11 @@
 
 #define PI 3.1415926536
 
-#define defaultSampleFreq 512.0f		// sample frequency in Hz
-#define betaDef		1.0f		// 2 * proportional gain
+#define DEFAULT_SAMPLE_FREQ 512.0f		// sample frequency in Hz
+#define BETA_DEF		1.0f		// 2 * proportional gain
 
-float sampleFreq = defaultSampleFreq;
-float beta = betaDef;								// 2 * proportional gain (Kp)
+float sampleFreq = DEFAULT_SAMPLE_FREQ;
+float beta = BETA_DEF;								// 2 * proportional gain (Kp)
 
 float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
 
@@ -81,14 +81,13 @@ void setAHRSFrequency(float f){
 }
 //#TODO: cancellare la porchetta
 void getAHRS(float* pitch, float* yaw, float* roll){
-  //*yaw   = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);
+  *yaw   = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);
   *pitch = -asin(2.0f * (q1 * q3 - q0 * q2));
   *roll  = atan2(2.0f * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
 
   /**yaw   *= 180.0f / PI;
   *yaw   -= 3.316666666; // Declination at Ancona, Italy is 3 degrees 19 minutes
   *yaw   *= PI / 180.0f;*/
-  *yaw = 0;
 }
 
 void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
@@ -101,7 +100,11 @@ void madgwickFilterUpdate(float gx, float gy, float gz, float ax, float ay, floa
 	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
 
 	// Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
-	if((mx <= 0.00001f) && (my <= 0.00001f) && (mz <= 0.00001f)) {
+//	if((mx <= 0.00001f) && (my <= 0.00001f) && (mz <= 0.00001f)) {
+//		MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az);
+//		return;
+//	}
+	if(1) {
 		MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az);
 		return;
 	}
