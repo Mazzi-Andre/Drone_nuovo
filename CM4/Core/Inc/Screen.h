@@ -10,7 +10,7 @@
 #include <fonts.h>
 #include <ssd1306.h>
 
-char buffer1[10], buffer2[10], buffer3[10];
+char buffer1[17], buffer2[17], buffer3[17];
 
 void screen_setup();
 void print_acc(float ax,float ay,float az);

@@ -2,13 +2,11 @@
  * MPU6050.c
  *
  *  Created on: 16 dic 2021
- *      Author: Mecozzi Fabio
+ *      Author: meefa
  */
 
 #include "MPU6050.h"
 bool bypass = 0;
-
-
 int MPU6050_Init() {
 	uint8_t check_id, data;
 	if (HAL_I2C_Mem_Read(&hi2c2, MPU6050_ADDR, WHO_AM_I_REG, 1, &check_id,

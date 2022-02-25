@@ -2,7 +2,7 @@
  * MPU6050.h
  *
  *  Created on: 17 dic 2021
- *      Author: Mazzi Andrè
+ *      Author: 39345
  */
 
 #ifndef INC_MPU6050_H_
@@ -13,6 +13,7 @@
 #include <stm32h7xx_hal_i2c.h>
 #include <string.h>
 #include <sys/_stdint.h>
+#include <mag.h>
 
 
 #define MPU6050_ADDR 0xD0 // addres of the peripherical
@@ -33,18 +34,16 @@ I2C_HandleTypeDef hi2c2;
 
 
 // Variabili globali di prova
-//int16_t Accel_X_RAW,Accel_Y_RAW,Accel_Z_RAW;
-//int16_t Ax,Ay,Az;
-//
-//
-//int16_t Gyro_X_RAW,Gyro_Y_RAW,Gyro_Z_RAW;
-//int16_t Gx,Gy,Gz;
+int16_t Accel_X_RAW,Accel_Y_RAW,Accel_Z_RAW;
+int16_t Ax,Ay,Az;
 
-/*
- * Inizializzazione delle strutture utilizzate per i dati di lettura dell'accellerometro,
- * del giroscopio e del magnetometro
- */
-// Struttura per i dati raw del magnetometro
+
+int16_t Gyro_X_RAW,Gyro_Y_RAW,Gyro_Z_RAW;
+int16_t Gx,Gy,Gz;
+
+
+//Inizializzazione delle struct per gli AHRS
+
 typedef struct {
 short raw[3];
 float x,y,z;
@@ -91,89 +90,30 @@ float Pitch_Rad_Ref;
 float Yaw_Rad_Ref;
 } IMU_rif;
 
-/***************************************************************************************
- * Function name: MPU6050_Init
- * Description  :Funzione di inizializzazione dell'IMU, che tramite gli indirizzi verifica il funzionamento
- * 				 dell'MPU6050 e configura tramite gli indirizzi collegati, accellerometro e giroscopio.
- * Return value : Restituisce un'intero nel caso le funzioni restituiscano errore, sennò 0.
- *
- *
- ***************************************************************************************/
+
+//funzione init generale
 int MPU6050_Init(void);
+void MPU6050_Init_Gir(void);
 
-//void MPU6050_Init_Gir(void);
-
-/***************************************************************************************
- * Function name: MPU6050_Read_Accel
- * Description  :Funzione di lettura tramite le HAL dei dati grezzi dell'accellerometro, nella quale
- * 				 vengono direttamente filtrati direttamente la sensibilità prefissata e inseriti allìinterno
- * 				 della struttura IMU_temp.
- * Arguments    : Ammette puntatore a struttura dati AHRS.
- * Return value : None.
- *
- ***************************************************************************************/
+//funzione di lettura accellerometro
 void MPU6050_Read_Accel(IMU_raw* Imu_raw, IMU_temp *Imu_temp);
-
-/***************************************************************************************
- * Function name: MPU6050_Read_Gir
- * Description  :Funzione di lettura tramite le HAL dei dati grezzi del giroscopio, nella quale
- * 				 vengono direttamente filtrati direttamente la sensibilità prefissata e inseriti allìinterno
- * 				 della struttura IMU_temp.
- * Arguments    : Ammette puntatore a struttura dati AHRS.
- * Return value : Restituisce su struttura i dati dell'accellerometro.
- *
- ***************************************************************************************/
+//funzione di lettura giroscopio
 void MPU6050_Read_Gir(IMU_raw* Imu_raw, IMU_temp *Imu_temp);
-
-/***************************************************************************************
- * Function name: MPU6050_Mag_Init
- * Description  :Funzione di inizializzazione del magnetometro, nella quale tramite una funzione di bypass
- * 				 si attiva un I2c interno all'MPU che ci permette la comunicazione attraverso il nostro
- * 				 magnetometro, e di conseguenza la configurazione iniziale tramite gli indirizzi associati.
- * Arguments    : Ammette puntatore a struttura dati AHRS.
- * Return value : Restituisce su struttura i dati del giroscopio.
- *
- ***************************************************************************************/
+//inizializzazione magnetometro e settagio valori di default
 int MPU6050_Mag_Init(MAG_data* mag_data);
-
-/***************************************************************************************
- * Function name: mag_read_raw
- * Description  :Funzione di lettura che tramite le HAL collegate direttamente agli indirizzi del magnetometro
- * 				 ci restituiscono i dati grezzi.
- * Arguments    : Ammette puntatore a struttura dati AHRS.
- * Return value : Restituisce su struttura i dati raw del magnetometro.
- *
- ***************************************************************************************/
+//lettura registri dati magnetometro
 int mag_read_raw(MAG_data* mag_data);
-
-/***************************************************************************************
- * Function name: mag_read
- * Description  :Funzione che ci permette di prendere i dati grezzi del magnetometro e tramite le sensibilità
- * 				 associate (default in questo caso) andare a filtrare i nostri dati.
- * Arguments    : Ammette puntatore a struttura dati AHRS.
- * Return value : Restituisce su struttura i dati filtrati del magnetometro.
- *
- ***************************************************************************************/
+//Lettura dati magnetometro
 int mag_read(MAG_data* mag_data);
-
-/***************************************************************************************
- * Function name: mpu_set_bypass
- * Description  :Funzione che serve per attivare il bypass del'MPU6050 che ci permette di attivare l'I2c di
- * 				 comunicazione con la nostra periferica.
- * Arguments    : None.
- * Return value : None.
- *
- ***************************************************************************************/
+//settaggio bypass dell'MPU per accedere al magnetometro
 int mpu_set_bypass();
-
-/***************************************************************************************
- * Function name: magcal
- * Description  :Funzione utilizzata per la calibrazione del magnetometro, che deve essre utilizzata nel
- * 				 caso in cui si utilizzi il magnetometro in una posizione nuova rispetto alla precedente.
- * Arguments    : None.
- * Return value : None.
- *
- ***************************************************************************************/
+//calibrazione magnetometro
 int magcal(MAG_data* mag_data);
+
+
+
+
+
+
 
 #endif /* INC_MPU6050_H_ */
