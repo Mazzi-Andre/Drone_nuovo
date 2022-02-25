@@ -174,9 +174,4 @@ int mpu_set_bypass();
 int magcal(MAG_data* mag_data);
 
 
-
-
-
-
-
 #endif /* INC_MPU6050_H_ */

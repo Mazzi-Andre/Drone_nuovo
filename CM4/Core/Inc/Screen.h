@@ -12,7 +12,23 @@
 
 char buffer1[17], buffer2[17], buffer3[17];
 
+/***************************************************************************************
+ * Function name: screen_setup
+ * Description  :Funzione che viene utilizzata per inizializzare il display e configurarlo per la
+ * 				 scrittura.
+ * Arguments    : None.
+ * Return value : None.
+ *
+ ***************************************************************************************/
 void screen_setup();
+
+/***************************************************************************************
+ * Function name: screen_setup
+ * Description  :Funzione che riceve come argomento 3 float e li stampa a schermo.
+ * Arguments    : None.
+ * Return value : None.
+ *
+ ***************************************************************************************/
 void print_acc(float ax,float ay,float az);
 void print_gyr(float gx,float gy,float gz);
 #endif /* INC_SCREEN_H_ */
