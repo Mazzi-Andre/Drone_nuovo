@@ -30,5 +30,5 @@ void screen_setup();
  *
  ***************************************************************************************/
 void print_acc(float ax,float ay,float az);
-void print_gyr(float gx,float gy,float gz);
+
 #endif /* INC_SCREEN_H_ */
