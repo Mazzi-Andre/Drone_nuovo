@@ -43,8 +43,10 @@ typedef struct{
 	float omegaYawDeg;         // Corrisponde all'uscita in gradi dell'asse z di AHRS (velocità angolare)
 }AHRS_data;
 
-
-
+/********************
+ * Struttura principale che viene utilizza per raggruppare tutte delle sottostrutture, contenenti dati
+ * raw e filtrati letti dall'MPU6050.
+ ********************/
 typedef struct{
 MAG_data mag;
 IMU_sens sens;
