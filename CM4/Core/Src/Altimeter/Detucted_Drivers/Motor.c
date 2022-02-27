@@ -52,19 +52,19 @@ void Motor_Arm_All(){
  *Arguments:     int variable to select the channel of the motor that has to be armed
  *Return value:  none
  ************************************************************/
+
 void Motor_Arm(int channel){
-	void Motor_Arm(int channel){
-		//channel value must be 1 or 4
-		if(channel < 1 || channel > 4)	return;
+	//channel value must be 1 or 4
+	if(channel < 1 || channel > 4)	return;
 
-		//motors should be enabled
-		if((motors_armed[channel-1]=false)) return;
+	//motors should be enabled
+	if((motors_armed[channel-1]=false)) return;
 
-		// Call Motor_Write_up() function passing the constant related to armament of motors
-		Motor_Write_up(channel, MOTOR_ARM_UP);
-		motors_armed[channel-1]= 1;
-	}
+	// Call Motor_Write_up() function passing the constant related to armament of motors
+	Motor_Write_up(channel, MOTOR_ARM_UP);
+	motors_armed[channel-1]= 1;
 }
+
 
 /*************************************************************
  *Function name: Motors_Off
