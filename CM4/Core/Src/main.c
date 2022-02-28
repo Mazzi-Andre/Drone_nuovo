@@ -132,6 +132,7 @@ UART_HandleTypeDef huart3;
 bool motors_switch = false;
 int cont = 0;
 int time_5ms_increase = 0;
+float motor_1_up;
 
 /* Create PID structure used for PID properties */
 PID_config z_axis_PID;
@@ -287,17 +288,6 @@ int main(void)
 				while(flag == GPIO_PIN_RESET){
 						flag = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 					}
-				Motor_Write_PWM(1, 6.01);
-				    HAL_Delay(2000);
-				    Motors_Off();
-				    HAL_Delay(200);
-				    Motor_Arm_All();
-				    HAL_Delay(2000);
-				    Motor_Write_PWM(1, 7.5);
-				    HAL_Delay(2000);
-				    Motors_Off();
-				    Motor_Arm_All();
-				    HAL_Delay(2000);
 	enable_interrupt = 1;
 
 
@@ -738,6 +728,7 @@ void Callback_50ms() {
 	MOTOR_MAX_UP);
 	float motor4 = map(*(Speeds + 3), 0, MOTOR_MAX_SPEED_4, MOTOR_MIN_UP,
 	MOTOR_MAX_UP);
+	motor_1_up = (float)motor1;
 
 	//mettere controllo accensione e spegnimento motori?
 
@@ -750,7 +741,27 @@ void Callback_50ms() {
 
 void Callback_100ms() {
 	//print_acc(ahrs.temp.accRoll, ahrs.temp.accPitch, ahrs.temp.accYaw);
-	print_acc(ahrs.ahrs_data.RollDeg, ahrs.ahrs_data.PitchDeg, ahrs.ahrs_data.YawDeg);
+	sprintf(buffer1, "rl: %.3f", ahrs.ahrs_data.RollDeg);
+		sprintf(buffer2, "pt: %.3f", ahrs.ahrs_data.PitchDeg);
+		sprintf(buffer3, "M1: %.3f", motor_1_up);
+
+
+		SSD1306_GotoXY(10, 10);
+		SSD1306_Puts((char*)buffer1, &Font_7x10, 1);
+		SSD1306_UpdateScreen();
+
+
+
+		SSD1306_GotoXY(10, 20);
+		SSD1306_Puts((char*)buffer2, &Font_7x10, 1);
+		SSD1306_UpdateScreen();
+
+
+
+		SSD1306_GotoXY(10, 30);
+		SSD1306_Puts((char*)buffer3, &Font_7x10, 1);
+		SSD1306_UpdateScreen();
+
 //	print_acc(ahrs.ahrs_data.omegaRollDeg, ahrs.ahrs_data.omegaPitchDeg, ahrs.ahrs_data.omegaYawDeg);
 	/*
 	 */
