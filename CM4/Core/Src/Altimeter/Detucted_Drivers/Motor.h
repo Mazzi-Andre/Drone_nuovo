@@ -30,7 +30,7 @@
 #define MOTOR_PWM_SIGNAL_PERIOD_UP 20000.00	//20ms
 #define MOTOR_ARM_UP 950	//Duty cycle 4.75% to arm up the motor
 #define MOTOR_MIN_UP 1200	//Min value of duty cycle - 6%  Duty (min speed)
-#define MOTOR_MAX_UP 2000	//Max value of duty cycle - 10% Duty (Max speed)
+#define MOTOR_MAX_UP 1300	//Max value of duty cycle - 10% Duty (Max speed)
 #define B_4 0.000001163 //thrust coefficient 4-cell battery
 #define B_3 0.000001162 //thrust coefficient 3-cell battery
 #define L 0.3375 //distance between motor and drone center
