@@ -2,7 +2,7 @@
  * MPU6050.h
  *
  *  Created on: 17 dic 2021
- *      Author: 39345
+ *      Author: Andrè Mazzi
  */
 
 #ifndef INC_MPU6050_H_
