@@ -40,51 +40,6 @@ typedef enum {
 	MOTORS_CONTROLLING_STATUS, //in this state motors control is running
 	PAUSED_STATUS // in this state motors control is paused
 } Program_Status;
-
-struct axis {
-	float x;
-	float y;
-	float z;
-};
-
-struct angles {
-	float yaw;
-	float pitch;
-	float roll;
-};
-
-struct dynamic {
-	struct axis acc;
-	struct axis vel;
-	struct axis pos;
-};
-
-struct physicalState {
-	//TODO: maybe these structures are useless, because the IMU program does the work
-	//struct dynamic accel;
-	//struct dynamic gyro;
-	//struct dynamic magn;
-	//struct dynamic Kalman;
-
-	struct dynamic abs;
-	struct angles angle;
-	float avg_motor1_us;
-	float avg_motor2_us;
-	float avg_motor3_us;
-	float avg_motor4_us;
-	float motor_diff_us;
-	float x_servo_deg;
-	float y_servo_deg;
-};
-union {
-	struct physicalState key;
-	float index[sizeof(struct physicalState)];
-} desiredState;	//state variables you want to reach
-
-union {
-	struct physicalState key;
-	float index[sizeof(struct physicalState)];
-} currentState;	//current state variables of the DuctedFan
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -131,15 +86,16 @@ ETH_HandleTypeDef heth;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /*variables needed to switch on and off the motors.*/
 Program_Status program_status = STARTING_STATUS;
-int cont = 0;
 int time_5ms_increase = 0;
 
 /* Create PID structure used for PID properties */
@@ -149,10 +105,9 @@ PID_config Pitch_PID;
 PID_config Roll_PID;
 
 /* Used to store value of altitude, yaw, pitch, roll need to be reached */
-float yawValue = 0;
-float pitchValue = 0;
-float rollValue = 0;
-float prova_mot=0;
+float desiredPitch = 0;
+float desiredPitch = 0;
+float desiredRoll = 0;
 
 /* Time in seconds every which PID control is made */
 const float dt = 0.05;
@@ -169,8 +124,10 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
-void Callback_5ms();
+void Callback_5ms(AHRS_out *ahrs);
 void Callback_50ms();
 void Callback_100ms();
 void Setup_Motor_PID();
@@ -232,9 +189,10 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
+  MX_TIM1_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-	screen_setup();
-
+//	screen_setup();
 	print_IMU_init();
 	MPU6050_Init();
 
@@ -244,26 +202,6 @@ int main(void)
 	//setting that MPU6050 is ready
 	program_status = MPU6050_INITIALIZED_STATUS;
 	print_motor_arm();
-
-//	//variable to control progression of code
-//	uint16_t flag;
-//	//wait until blue button is pressed
-//	while (flag == GPIO_PIN_RESET) {
-//		flag = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-//	}
-//
-//	//setup motors and PID
-//	HAL_TIM_Base_Start_IT(&htim2);
-//	Setup_Motor_PID();
-//
-//	flag=0;
-//	//wait until blue button is pressed
-//	while (flag == GPIO_PIN_RESET) {
-//		flag = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-//	}
-//
-//	//start motors control
-//	enable_interrupt = 1;
 
   /* USER CODE END 2 */
 
@@ -421,6 +359,53 @@ static void MX_I2C2_Init(void)
 }
 
 /**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 48000-1;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 500-1;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
   * @brief TIM2 Initialization Function
   * @param None
   * @retval None
@@ -550,6 +535,64 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 24000-1;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 500-1;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OC_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -639,28 +682,24 @@ void Setup_Motor_PID() {
 	// derivative and integrative
 	PID_Init(&z_axis_PID, 0.7, 0.05, 0.3, dt, 0, 1);
 
-	desiredState.key.motor_diff_us = 0; // variable to control the rotation
-	desiredState.key.abs.pos.z = 0.20;
-
 	/*IMUs PID: they need to be tuned properly, right now Kp and Kd are set to 1*/
-	PID_Init(&Pitch_PID, 1.8, 0, 0.2, dt, 0, 1);
-	PID_Init(&Roll_PID, 1.8, 0, 0.2, dt, 0, 1);
-	PID_Init(&Yaw_PID, 1.8, 0, 0.2, dt, 0, 1);
+	PID_Init(&Pitch_PID, 1, 1, 0, dt, 0, 1);
+	PID_Init(&Roll_PID, 1, 1, 0, dt, 0, 1);
+	PID_Init(&Yaw_PID, 1, 1, 0, dt, 0, 1);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (program_status == MOTORS_CONTROLLING_STATUS) {
 		if (htim == &htim2) {
-			time_5ms_increase += 5;
 			Callback_5ms(&ahrs);
-			if (time_5ms_increase % 50 == 0)
-				Callback_50ms();
-			if (time_5ms_increase % 100 == 0) {
-				Callback_100ms();
-				time_5ms_increase = 0;
-			}
-
 		}
+		if (htim == &htim1) {
+			Callback_50ms();
+		}
+		if (htim == &htim4) {
+			Callback_100ms();
+		}
+
 	}
 }
 
@@ -676,23 +715,32 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			program_status = MOTORS_ARMED_STATUS;
 			print_motor_start();
 			break;
-			//if motors are armed program is enabled to start them
+		//if motors are armed program is enabled to start them
 		case MOTORS_ARMED_STATUS:
 			program_status = MOTORS_CONTROLLING_STATUS;
 			HAL_TIM_Base_Start_IT(&htim2);
+			HAL_TIM_Base_Start_IT(&htim1);
+			HAL_TIM_Base_Start_IT(&htim4);
 			break;
-			//if motors are running B1 stop them
+		//if motors are running B1 stop them
 		case MOTORS_CONTROLLING_STATUS:
+//			HAL_TIM_Base_Stop_IT(&htim2);
+//			HAL_TIM_Base_Stop_IT(&htim1);
+//			HAL_TIM_Base_Stop_IT(&htim4);
 			program_status = PAUSED_STATUS;
 			Motors_Off();
+			time_5ms_increase = 0;
 			break;
-			//if motors are paused B1 start them
+		//if motors are paused B1 start them
 		case PAUSED_STATUS:
 			Motor_Arm_All();
 			HAL_Delay(2000);
 			program_status = MOTORS_CONTROLLING_STATUS;
+			//HAL_TIM_Base_Start_IT(&htim2);
+			//HAL_TIM_Base_Start_IT(&htim1);
+			//HAL_TIM_Base_Start_IT(&htim4);
 			break;
-			//by default do nothing
+		//by default do nothing
 		default:
 			break;
 		}
@@ -721,9 +769,9 @@ void Callback_50ms() {
 
 	float virtualInputs[4];
 
-	virtualInputs[1] = PID_Compute(Current_pitch, pitchValue, &Pitch_PID);
-	virtualInputs[2] = PID_Compute(Current_roll, rollValue, &Roll_PID);
-	virtualInputs[3] = PID_Compute(Current_yaw, yawValue, &Yaw_PID);
+	virtualInputs[1] = PID_Compute(Current_pitch, desiredPitch, &Pitch_PID);
+	virtualInputs[2] = PID_Compute(Current_roll, desiredRoll, &Roll_PID);
+	virtualInputs[3] = PID_Compute(Current_yaw, desiredPitch, &Yaw_PID);
 
 	float *Speeds;
 
@@ -740,8 +788,7 @@ void Callback_50ms() {
 	float motor4 = map(*(Speeds + 3), 0, MOTOR_MAX_SPEED_4, MOTOR_MIN_UP,
 	MOTOR_MAX_UP);
 
-	//mettere controllo accensione e spegnimento motori?
-	prova_mot = motor2;
+	//writes the measure obtained in each PWM
 	Motor_Write_up(MOTOR_1, motor1);
 	Motor_Write_up(MOTOR_2, motor2);
 	Motor_Write_up(MOTOR_3, motor3);
@@ -751,7 +798,8 @@ void Callback_50ms() {
 
 void Callback_100ms() {
 	//print_acc(ahrs.temp.accRoll, ahrs.temp.accPitch, ahrs.temp.accYaw);
-	print_acc(ahrs.ahrs_data.RollDeg, ahrs.ahrs_data.PitchDeg, prova_mot);
+	print_acc(ahrs.ahrs_data.RollDeg, ahrs.ahrs_data.PitchDeg,
+			ahrs.ahrs_data.YawDeg);
 //	print_acc(ahrs.ahrs_data.omegaRollDeg, ahrs.ahrs_data.omegaPitchDeg, ahrs.ahrs_data.omegaYawDeg);
 	/*
 	 */
@@ -880,6 +928,7 @@ void print_motor_start() {
 	SSD1306_Puts((char*) buffer3, &Font_7x10, 1);
 	SSD1306_UpdateScreen();
 }
+
 /* USER CODE END 4 */
 
 /**
